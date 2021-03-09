@@ -15,22 +15,24 @@
 // specific language governing permissions and limitations
 // under the License.
 
-package model
+package modelprocessor
 
 import (
-	"github.com/elastic/beats/v7/libbeat/common"
+	"context"
+
+	"github.com/elastic/apm-server/model"
 )
 
-type User struct {
-	ID    string
-	Email string
-	Name  string
-}
+// Chained is a chained model.BatchProcessor, calling each of
+// the processors in the slice in series.
+type Chained []model.BatchProcessor
 
-func (u *User) fields() common.MapStr {
-	var user mapStr
-	user.maybeSetString("id", u.ID)
-	user.maybeSetString("email", u.Email)
-	user.maybeSetString("name", u.Name)
-	return common.MapStr(user)
+// ProcessBatch calls each of the processors in c in series.
+func (c Chained) ProcessBatch(ctx context.Context, batch *model.Batch) error {
+	for _, p := range c {
+		if err := p.ProcessBatch(ctx, batch); err != nil {
+			return err
+		}
+	}
+	return nil
 }
