@@ -1,8 +1,0 @@
-{
-    "accepted": 0,
-    "errors": [
-        {
-            "message": "gzip: invalid header"
-        }
-    ]
-}
